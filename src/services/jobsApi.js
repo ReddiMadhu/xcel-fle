@@ -1,4 +1,5 @@
 import apiClient from './api.js';
+import { validateAndLog } from '../utils/apiResponseValidator.js';
 
 export const jobsApi = {
   // POST /api/v1/jobs - Upload files
@@ -30,6 +31,14 @@ export const jobsApi = {
   // GET /api/v1/jobs/{job_id}/result - Get analysis result
   getJobResult: async (jobId) => {
     const response = await apiClient.get(`/jobs/${jobId}/result`);
+
+    // Validate API response in development mode
+    if (import.meta.env.DEV) {
+      console.group(`📋 API Response Validation for Job: ${jobId}`);
+      validateAndLog(response.data);
+      console.groupEnd();
+    }
+
     return response.data;
   },
 

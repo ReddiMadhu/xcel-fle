@@ -40,11 +40,14 @@ export const transformToReactFlow = (apiResult) => {
     // Step 2: Create column nodes (children of file node)
     if (file.columns && Array.isArray(file.columns)) {
       file.columns.forEach((column, colIndex) => {
+        // Support both column_name (fixed backend) and name (legacy)
+        const columnName = column.column_name || column.name;
+
         const columnNode = {
           id: `file-${fileIndex}-col-${colIndex}`,
           type: 'columnNode',
           data: {
-            label: column.column_name,
+            label: columnName,
             dataType: column.data_type || 'unknown',
             isPrimaryKey: column.is_primary_key || false,
             isForeignKey: column.is_foreign_key || false,
@@ -82,10 +85,10 @@ export const transformToReactFlow = (apiResult) => {
     const targetFile = files[targetFileIndex];
 
     const sourceColIndex = sourceFile.columns?.findIndex(
-      c => c.column_name === rel.source?.column
+      c => (c.column_name || c.name) === rel.source?.column
     );
     const targetColIndex = targetFile.columns?.findIndex(
-      c => c.column_name === rel.target?.column
+      c => (c.column_name || c.name) === rel.target?.column
     );
 
     if (sourceColIndex === -1 || targetColIndex === -1) {

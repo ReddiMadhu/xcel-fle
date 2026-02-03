@@ -71,34 +71,42 @@ const TablePreview = ({ files }) => {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              {columns.map((col, idx) => (
-                <th
-                  key={idx}
-                  className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
-                >
-                  <div className="flex items-center gap-2">
-                    <span>{getTypeIcon(col.data_type)}</span>
-                    <span className="truncate max-w-[150px]" title={col.column_name}>
-                      {col.column_name}
-                    </span>
-                  </div>
-                </th>
-              ))}
+              {columns.map((col, idx) => {
+                // Support both column_name (fixed backend) and name (legacy)
+                const columnName = col.column_name || col.name;
+                return (
+                  <th
+                    key={idx}
+                    className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span>{getTypeIcon(col.data_type)}</span>
+                      <span className="truncate max-w-[150px]" title={columnName}>
+                        {columnName}
+                      </span>
+                    </div>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {rows.slice(0, 20).map((row, rowIdx) => (
               <tr key={rowIdx} className="hover:bg-gray-50">
-                {columns.map((col, colIdx) => (
-                  <td
-                    key={colIdx}
-                    className="px-4 py-2 text-sm text-gray-900 whitespace-nowrap"
-                  >
-                    <div className="max-w-[200px] truncate" title={row[col.column_name]}>
-                      {row[col.column_name] ?? '-'}
-                    </div>
-                  </td>
-                ))}
+                {columns.map((col, colIdx) => {
+                  // Support both column_name (fixed backend) and name (legacy)
+                  const columnName = col.column_name || col.name;
+                  return (
+                    <td
+                      key={colIdx}
+                      className="px-4 py-2 text-sm text-gray-900 whitespace-nowrap"
+                    >
+                      <div className="max-w-[200px] truncate" title={row[columnName]}>
+                        {row[columnName] ?? '-'}
+                      </div>
+                    </td>
+                  );
+                })}
               </tr>
             ))}
           </tbody>

@@ -107,6 +107,7 @@ const RelationshipModal = () => {
                     </div>
                   )}
                 </div>
+                {/* Data quality warnings from statistics */}
                 {rel.statistics.data_quality_warnings && rel.statistics.data_quality_warnings.length > 0 && (
                   <div className="mt-3 pt-3 border-t border-blue-300">
                     <p className="text-xs font-semibold text-orange-700 mb-2">⚠️ Data Quality Warnings</p>
@@ -144,7 +145,7 @@ const RelationshipModal = () => {
                   <strong>Can decision makers act?</strong>{' '}
                   {insights.decision_making_value.can_decision_makers_act ? 'Yes' : 'No'}
                 </p>
-                {insights.decision_making_value.specific_actions_enabled && (
+                {insights.decision_making_value.specific_actions_enabled && insights.decision_making_value.specific_actions_enabled.length > 0 && (
                   <ul className="text-sm text-gray-700 space-y-1 ml-4">
                     {insights.decision_making_value.specific_actions_enabled.map((action, idx) => (
                       <li key={idx}>✓ {action}</li>
