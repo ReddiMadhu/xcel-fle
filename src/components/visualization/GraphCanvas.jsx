@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import ReactFlow, {
   Background,
   Controls,
@@ -28,8 +28,18 @@ const GraphCanvas = () => {
   const filteredEdges = useGraphStore(state => state.filteredEdges);
   const selectRelationship = useGraphStore(state => state.actions.selectRelationship);
 
-  const [nodesState, , onNodesChange] = useNodesState(nodes);
-  const [edgesState, , onEdgesChange] = useEdgesState(filteredEdges);
+  const [nodesState, setNodes, onNodesChange] = useNodesState(nodes);
+  const [edgesState, setEdges, onEdgesChange] = useEdgesState(filteredEdges);
+
+  // Sync edges state when filteredEdges changes in store
+  useEffect(() => {
+    setEdges(filteredEdges);
+  }, [filteredEdges, setEdges]);
+
+  // Sync nodes state when nodes changes in store
+  useEffect(() => {
+    setNodes(nodes);
+  }, [nodes, setNodes]);
 
   const onEdgeClick = useCallback((event, edge) => {
     event.preventDefault();

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
+import { FileText, Hash, Calendar, CheckSquare, Circle } from 'lucide-react';
 
 const TablePreview = ({ files }) => {
   const [activeFileIndex, setActiveFileIndex] = useState(0);
@@ -13,22 +14,23 @@ const TablePreview = ({ files }) => {
   const columns = currentFile?.columns || [];
 
   const getTypeIcon = (dataType) => {
+    const iconClass = "w-4 h-4";
     switch (dataType?.toLowerCase()) {
       case 'string':
       case 'text':
-        return '📝';
+        return <FileText className={`${iconClass} text-blue-600`} />;
       case 'number':
       case 'int':
       case 'float':
-        return '🔢';
+        return <Hash className={`${iconClass} text-green-600`} />;
       case 'date':
       case 'datetime':
-        return '📅';
+        return <Calendar className={`${iconClass} text-purple-600`} />;
       case 'boolean':
       case 'bool':
-        return '✓';
+        return <CheckSquare className={`${iconClass} text-orange-600`} />;
       default:
-        return '•';
+        return <Circle className={`${iconClass} text-gray-600`} />;
     }
   };
 
@@ -80,7 +82,7 @@ const TablePreview = ({ files }) => {
                     className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
                   >
                     <div className="flex items-center gap-2">
-                      <span>{getTypeIcon(col.data_type)}</span>
+                      {getTypeIcon(col.data_type)}
                       <span className="truncate max-w-[150px]" title={columnName}>
                         {columnName}
                       </span>

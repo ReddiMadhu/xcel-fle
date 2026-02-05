@@ -11,7 +11,10 @@ import {
   Star,
   BarChart3,
   Info,
-  X
+  X,
+  AlertTriangle,
+  Check,
+  Circle
 } from 'lucide-react';
 
 // Tooltip Component
@@ -191,9 +194,14 @@ const RelationshipModal = () => {
                 {/* Data quality warnings from statistics */}
                 {rel.statistics.data_quality_warnings && rel.statistics.data_quality_warnings.length > 0 && (
                   <div className="mt-3 pt-3 border-t border-blue-300">
-                    <p className="text-xs font-semibold text-orange-700 mb-2">⚠️ Data Quality Warnings</p>
+                    <p className="text-xs font-semibold text-orange-700 mb-2 flex items-center gap-1">
+                      <AlertTriangle className="w-4 h-4" /> Data Quality Warnings
+                    </p>
                     {rel.statistics.data_quality_warnings.map((warning, idx) => (
-                      <p key={idx} className="text-xs text-orange-800 mb-1">• {warning}</p>
+                      <p key={idx} className="text-xs text-orange-800 mb-1 flex items-start gap-1">
+                        <Circle className="w-2 h-2 fill-orange-800 mt-1 flex-shrink-0" />
+                        <span>{warning}</span>
+                      </p>
                     ))}
                   </div>
                 )}
@@ -232,9 +240,12 @@ const RelationshipModal = () => {
                   <Target className="w-5 h-5 text-blue-600" /> Decision Enablement
                 </h3>
                 {insights.decision_making_value.specific_actions_enabled && insights.decision_making_value.specific_actions_enabled.length > 0 && (
-                  <ul className="text-sm text-gray-700 space-y-1 ml-4">
+                  <ul className="text-sm text-gray-700 space-y-1">
                     {insights.decision_making_value.specific_actions_enabled.map((action, idx) => (
-                      <li key={idx}>✓ {action}</li>
+                      <li key={idx} className="flex items-start gap-2">
+                        <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <span>{action}</span>
+                      </li>
                     ))}
                   </ul>
                 )}
@@ -248,7 +259,10 @@ const RelationshipModal = () => {
                 </h3>
                 <ul className="text-sm text-gray-700 space-y-1">
                   {insights.critical_insights_revealed.map((insight, idx) => (
-                    <li key={idx}>• {insight}</li>
+                    <li key={idx} className="flex items-start gap-2">
+                      <Circle className="w-2 h-2 fill-gray-700 mt-1.5 flex-shrink-0" />
+                      <span>{insight}</span>
+                    </li>
                   ))}
                 </ul>
               </div>
@@ -261,7 +275,10 @@ const RelationshipModal = () => {
                 </h3>
                 <ul className="text-sm text-gray-700 space-y-1">
                   {insights.answerable_questions.map((question, idx) => (
-                    <li key={idx}>• {question}</li>
+                    <li key={idx} className="flex items-start gap-2">
+                      <Circle className="w-2 h-2 fill-gray-700 mt-1.5 flex-shrink-0" />
+                      <span>{question}</span>
+                    </li>
                   ))}
                 </ul>
               </div>
