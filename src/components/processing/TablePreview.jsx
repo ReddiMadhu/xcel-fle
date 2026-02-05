@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { FileText, Hash, Calendar, CheckSquare, Circle } from 'lucide-react';
+import { extractOriginalFilename } from '../../utils/fileUtils.js';
 
 const TablePreview = ({ files }) => {
   const [activeFileIndex, setActiveFileIndex] = useState(0);
@@ -53,7 +54,7 @@ const TablePreview = ({ files }) => {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              {file.file_name}
+              {extractOriginalFilename(file.file_name)}
             </button>
           ))}
         </div>
@@ -61,7 +62,7 @@ const TablePreview = ({ files }) => {
 
       {/* Table info */}
       <div className="mb-3 text-sm text-gray-600">
-        <p className="font-medium">{currentFile?.file_name}</p>
+        <p className="font-medium">{extractOriginalFilename(currentFile?.file_name)}</p>
         <p className="text-xs mt-1">
           {currentFile?.row_count} rows × {currentFile?.column_count} columns
           {currentFile?.sheet_name && ` • Sheet: ${currentFile.sheet_name}`}

@@ -16,6 +16,7 @@ import {
   Check,
   Circle
 } from 'lucide-react';
+import { extractOriginalFilename } from '../../utils/fileUtils.js';
 
 // Tooltip Component
 const Tooltip = ({ children, content }) => {
@@ -135,12 +136,12 @@ const RelationshipModal = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Source</p>
-                  <p className="font-medium text-gray-900">{rel.source?.file}</p>
+                  <p className="font-medium text-gray-900">{extractOriginalFilename(rel.source?.file)}</p>
                   <p className="text-sm text-gray-600">→ {rel.source?.column}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Target</p>
-                  <p className="font-medium text-gray-900">{rel.target?.file}</p>
+                  <p className="font-medium text-gray-900">{extractOriginalFilename(rel.target?.file)}</p>
                   <p className="text-sm text-gray-600">→ {rel.target?.column}</p>
                 </div>
               </div>

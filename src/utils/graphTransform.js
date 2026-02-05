@@ -3,6 +3,8 @@
  * Creates nested nodes (files contain columns) and edges for relationships
  */
 
+import { extractOriginalFilename } from './fileUtils.js';
+
 export const transformToReactFlow = (apiResult) => {
   const nodes = [];
   const edges = [];
@@ -20,7 +22,7 @@ export const transformToReactFlow = (apiResult) => {
       id: `file-${fileIndex}`,
       type: 'fileNode',
       data: {
-        label: file.file_name,
+        label: extractOriginalFilename(file.file_name),
         sheet: file.sheet_name,
         rowCount: file.row_count,
         columnCount: file.column_count,
