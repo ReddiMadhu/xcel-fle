@@ -1,5 +1,14 @@
 import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import {
+  FolderOpen,
+  Search,
+  Link,
+  Bot,
+  BarChart3,
+  FileText,
+  Settings
+} from 'lucide-react';
 
 const StageProgress = ({ progress, stage, status }) => {
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -34,15 +43,16 @@ const StageProgress = ({ progress, stage, status }) => {
   };
 
   const getStageIcon = (stageName) => {
+    const iconClass = "w-6 h-6";
     const icons = {
-      loading_files: '📂',
-      profiling_data: '🔍',
-      detecting_relationships: '🔗',
-      llm_validation: '🤖',
-      business_validation: '📊',
-      generating_report: '📝'
+      loading_files: <FolderOpen className={iconClass} />,
+      profiling_data: <Search className={iconClass} />,
+      detecting_relationships: <Link className={iconClass} />,
+      llm_validation: <Bot className={iconClass} />,
+      business_validation: <BarChart3 className={iconClass} />,
+      generating_report: <FileText className={iconClass} />
     };
-    return icons[stageName] || '⚙️';
+    return icons[stageName] || <Settings className={iconClass} />;
   };
 
   const radius = 70;
@@ -95,7 +105,7 @@ const StageProgress = ({ progress, stage, status }) => {
       {/* Stage information */}
       <div className="mt-8 text-center max-w-md">
         <div className="flex items-center justify-center gap-2 mb-3">
-          <span className="text-2xl">{getStageIcon(stage)}</span>
+          <span className="text-primary-600">{getStageIcon(stage)}</span>
           <h3 className="text-lg font-semibold text-gray-900 capitalize">
             {stage?.replace(/_/g, ' ') || 'Processing'}
           </h3>

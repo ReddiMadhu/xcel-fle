@@ -6,6 +6,7 @@ import ErrorBoundary from './components/common/ErrorBoundary.jsx';
 
 // Lazy load pages for code splitting
 const UploadPage = lazy(() => import('./pages/UploadPage.jsx'));
+const PreviewPage = lazy(() => import('./pages/PreviewPage.jsx'));
 const ProcessingPage = lazy(() => import('./pages/ProcessingPage.jsx'));
 const ResultsPage = lazy(() => import('./pages/ResultsPage.jsx'));
 
@@ -50,6 +51,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/upload" replace />} />
           <Route path="/upload" element={<UploadPage />} />
+          <Route path="/jobs/:previewId/preview" element={<PreviewPage />} />
           <Route path="/jobs/:jobId/processing" element={<ProcessingPage />} />
           <Route path="/jobs/:jobId/results" element={<ResultsPage />} />
           <Route path="*" element={<Navigate to="/upload" replace />} />

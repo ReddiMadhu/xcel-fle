@@ -88,18 +88,18 @@ const UploadPage = () => {
     clearJob();
 
     try {
-      const response = await jobsApi.createJob(files, (progress) => {
+      // Use preview endpoint instead of direct job creation
+      const response = await jobsApi.createPreview(files, (progress) => {
         setUploadProgress(progress);
       });
 
-      showToast('Files uploaded successfully! Starting analysis...', 'success');
+      showToast('Files uploaded! Review duplicates before processing...', 'success');
 
-      // Store job in store
-      setCurrentJob(response);
-
-      // Navigate to processing page
+      // Navigate to preview page with the response data
       setTimeout(() => {
-        navigate(`/jobs/${response.job_id}/processing`);
+        navigate(`/jobs/${response.preview_id}/preview`, {
+          state: { previewData: response }
+        });
       }, 500);
 
     } catch (error) {
@@ -161,7 +161,7 @@ const UploadPage = () => {
                     disabled={!canUpload}
                     loading={isUploading}
                   >
-                    Analyze Relationships
+                    Upload & Preview
                   </Button>
                 </div>
               )}
