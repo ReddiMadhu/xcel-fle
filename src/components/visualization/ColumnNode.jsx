@@ -1,34 +1,37 @@
 import { Handle, Position } from 'reactflow';
 import PropTypes from 'prop-types';
+import { FileText, Hash, Calendar, CheckSquare, Circle } from 'lucide-react';
 
 const ColumnNode = ({ data }) => {
   const getTypeIcon = (dataType) => {
     const type = dataType?.toLowerCase() || 'unknown';
+    const iconClass = "w-4 h-4";
+
     switch (type) {
       case 'string':
       case 'text':
       case 'varchar':
-        return '📝';
+        return <FileText className={`${iconClass} text-blue-600`} />;
       case 'number':
       case 'int':
       case 'integer':
       case 'float':
       case 'decimal':
-        return '🔢';
+        return <Hash className={`${iconClass} text-green-600`} />;
       case 'date':
       case 'datetime':
       case 'timestamp':
-        return '📅';
+        return <Calendar className={`${iconClass} text-purple-600`} />;
       case 'boolean':
       case 'bool':
-        return '✓';
+        return <CheckSquare className={`${iconClass} text-orange-600`} />;
       default:
-        return '•';
+        return <Circle className={`${iconClass} text-gray-600`} />;
     }
   };
 
   return (
-    <div className="column-node flex items-center gap-2 px-3 py-2 group hover:shadow-md transition-shadow">
+    <div className="column-node flex items-center gap-2 px-3 py-2 group hover:shadow-md transition-shadow cursor-pointer">
       <Handle
         type="target"
         position={Position.Left}
@@ -36,7 +39,7 @@ const ColumnNode = ({ data }) => {
         style={{ left: -6 }}
       />
 
-      <span className="text-sm flex-shrink-0">{getTypeIcon(data.dataType)}</span>
+      <span className="flex-shrink-0">{getTypeIcon(data.dataType)}</span>
 
       <span className="text-sm font-medium text-gray-900 flex-1 truncate" title={data.label}>
         {data.label}

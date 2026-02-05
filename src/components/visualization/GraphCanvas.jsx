@@ -46,9 +46,27 @@ const GraphCanvas = () => {
     selectRelationship(edge.data?.relationship);
   }, [selectRelationship]);
 
-  const onNodeClick = useCallback((event, node) => {
-    console.log('Node clicked:', node);
-  }, []);
+  const onNodeClick = useCallback((_event, node) => {
+    // If it's a column node, find and show its relationships
+    if (node.type === 'columnNode') {
+      // Find all edges connected to this column
+      const connectedEdges = filteredEdges.filter(
+        edge => edge.source === node.id || edge.target === node.id
+      );
+
+      if (connectedEdges.length > 0) {
+        // Show the first relationship (you could enhance this to show all or let user choose)
+        const firstEdge = connectedEdges[0];
+        if (firstEdge.data?.relationship) {
+          selectRelationship(firstEdge.data.relationship);
+        }
+      } else {
+        console.log('No relationships found for column:', node.data.label);
+      }
+    } else {
+      console.log('File node clicked:', node.data.label);
+    }
+  }, [filteredEdges, selectRelationship]);
 
   if (nodes.length === 0) {
     return (
