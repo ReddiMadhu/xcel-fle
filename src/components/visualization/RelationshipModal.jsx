@@ -1,9 +1,46 @@
+import { useState } from 'react';
 import { useGraphStore } from '../../stores/graphStore.js';
 import Button from '../common/Button.jsx';
+import {
+  CheckCircle2,
+  XCircle,
+  BookOpen,
+  Target,
+  Lightbulb,
+  HelpCircle,
+  Star,
+  BarChart3,
+  Info,
+  X
+} from 'lucide-react';
+
+// Tooltip Component
+const Tooltip = ({ children, content }) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  return (
+    <div className="relative inline-block">
+      <div
+        onMouseEnter={() => setIsVisible(true)}
+        onMouseLeave={() => setIsVisible(false)}
+        className="cursor-help"
+      >
+        {children}
+      </div>
+      {isVisible && (
+        <div className="absolute z-50 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-lg -top-2 left-full ml-2 transform -translate-y-1/2">
+          <div className="absolute w-2 h-2 bg-gray-900 transform rotate-45 -left-1 top-1/2 -translate-y-1/2" />
+          {content}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const RelationshipModal = () => {
   const selectedRelationship = useGraphStore(state => state.selectedRelationship);
   const closeModal = useGraphStore(state => state.actions.closeRelationshipModal);
+  const [showConfidencePopup, setShowConfidencePopup] = useState(false);
 
   if (!selectedRelationship) return null;
 
@@ -21,6 +58,35 @@ const RelationshipModal = () => {
       default:
         return 'bg-gray-100 text-gray-800 border-gray-300';
     }
+  };
+
+  const definitions = {
+    confidenceScore: (
+      <div className="space-y-3">
+        <p>A rule-based numeric value (0–100) that indicates how certain the system is about this relationship.</p>
+
+        <div>
+          <p className="font-semibold mb-2">Key Factors:</p>
+          <ul className="list-disc ml-4 space-y-1">
+            <li><strong>Value overlap</strong> - Primary metric measuring how many values match between columns</li>
+            <li><strong>Uniqueness</strong> - Whether columns show PK-FK patterns (one side is unique)</li>
+            <li><strong>Name similarity</strong> - How similar the column names are</li>
+            <li><strong>Data quality</strong> - Null percentages and orphan records</li>
+          </ul>
+        </div>
+
+        <div>
+          <p className="font-semibold mb-2">Confidence Levels:</p>
+          <ul className="ml-4 space-y-1 text-sm">
+            <li><strong>HIGH (90-95):</strong> Strong match with ≥80% overlap</li>
+            <li><strong>MEDIUM (60-75):</strong> Moderate match with ≥60% overlap</li>
+            <li><strong>LOW (40-59):</strong> Weak match with ≥40% overlap</li>
+          </ul>
+        </div>
+      </div>
+    ),
+    valueOverlap: "Value Overlap shows the percentage of values that exist in both the source and target columns. A high overlap percentage suggests a strong data relationship.",
+    orphanRecords: "Orphan Records are entries in the source file that don't have matching values in the target file. This could indicate data quality issues or incomplete relationships."
   };
 
   return (
@@ -53,9 +119,7 @@ const RelationshipModal = () => {
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 aria-label="Close modal"
               >
-                <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <X className="w-6 h-6 text-gray-500" />
               </button>
             </div>
           </div>
@@ -84,7 +148,12 @@ const RelationshipModal = () => {
                 </p>
                 <p className="text-sm mt-1">
                   <span className="text-gray-500">Confidence Score:</span>{' '}
-                  <span className="font-medium text-gray-900">{rel.confidence_score || 0}%</span>
+                  <button
+                    onClick={() => setShowConfidencePopup(true)}
+                    className="font-medium text-blue-600 hover:text-blue-800 underline cursor-pointer"
+                  >
+                    {rel.confidence_score || 0}%
+                  </button>
                 </p>
               </div>
             </div>
@@ -92,17 +161,29 @@ const RelationshipModal = () => {
             {/* Statistics */}
             {rel.statistics && (
               <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">📊 Statistics</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5" /> Statistics
+                </h3>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   {rel.statistics.value_overlap_percent !== undefined && (
                     <div>
-                      <p className="text-gray-600">Value Overlap</p>
+                      <p className="text-gray-600 flex items-center gap-1">
+                        Value Overlap
+                        <Tooltip content={definitions.valueOverlap}>
+                          <Info className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+                        </Tooltip>
+                      </p>
                       <p className="text-xl font-bold text-blue-900">{rel.statistics.value_overlap_percent}%</p>
                     </div>
                   )}
                   {rel.statistics.orphans_in_source !== undefined && (
                     <div>
-                      <p className="text-gray-600">Orphan Records</p>
+                      <p className="text-gray-600 flex items-center gap-1">
+                        Orphan Records
+                        <Tooltip content={definitions.orphanRecords}>
+                          <Info className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+                        </Tooltip>
+                      </p>
                       <p className="text-xl font-bold text-blue-900">{rel.statistics.orphans_in_source}</p>
                     </div>
                   )}
@@ -123,7 +204,12 @@ const RelationshipModal = () => {
             {insights.relationship_validity && (
               <div className="bg-white rounded-lg p-4 border-2 border-green-200">
                 <h3 className="text-base font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                  {insights.relationship_validity.is_valid ? '✅' : '❌'} Relationship Validity
+                  {insights.relationship_validity.is_valid ? (
+                    <CheckCircle2 className="w-5 h-5 text-green-600" />
+                  ) : (
+                    <XCircle className="w-5 h-5 text-red-600" />
+                  )}{' '}
+                  Relationship Validity
                 </h3>
                 <p className="text-sm text-gray-700">
                   {insights.relationship_validity.explanation || 'N/A'}
@@ -133,18 +219,18 @@ const RelationshipModal = () => {
 
             {insights.what_story_it_tells && (
               <div className="bg-white rounded-lg p-4 border-2 border-purple-200">
-                <h3 className="text-base font-semibold text-gray-900 mb-2">📖 What This Tells You</h3>
+                <h3 className="text-base font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-purple-600" /> Business Significance
+                </h3>
                 <p className="text-sm text-gray-700">{insights.what_story_it_tells}</p>
               </div>
             )}
 
             {insights.decision_making_value && (
               <div className="bg-white rounded-lg p-4 border-2 border-blue-200">
-                <h3 className="text-base font-semibold text-gray-900 mb-2">🎯 Actions You Can Take</h3>
-                <p className="text-sm text-gray-700 mb-2">
-                  <strong>Can decision makers act?</strong>{' '}
-                  {insights.decision_making_value.can_decision_makers_act ? 'Yes' : 'No'}
-                </p>
+                <h3 className="text-base font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                  <Target className="w-5 h-5 text-blue-600" /> Decision Enablement
+                </h3>
                 {insights.decision_making_value.specific_actions_enabled && insights.decision_making_value.specific_actions_enabled.length > 0 && (
                   <ul className="text-sm text-gray-700 space-y-1 ml-4">
                     {insights.decision_making_value.specific_actions_enabled.map((action, idx) => (
@@ -157,7 +243,9 @@ const RelationshipModal = () => {
 
             {insights.critical_insights_revealed && insights.critical_insights_revealed.length > 0 && (
               <div className="bg-white rounded-lg p-4 border-2 border-yellow-200">
-                <h3 className="text-base font-semibold text-gray-900 mb-2">💡 Key Insights Revealed</h3>
+                <h3 className="text-base font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                  <Lightbulb className="w-5 h-5 text-yellow-600" /> Actionable Insights
+                </h3>
                 <ul className="text-sm text-gray-700 space-y-1">
                   {insights.critical_insights_revealed.map((insight, idx) => (
                     <li key={idx}>• {insight}</li>
@@ -168,7 +256,9 @@ const RelationshipModal = () => {
 
             {insights.answerable_questions && insights.answerable_questions.length > 0 && (
               <div className="bg-white rounded-lg p-4 border-2 border-indigo-200">
-                <h3 className="text-base font-semibold text-gray-900 mb-2">❓ Questions You Can Now Answer</h3>
+                <h3 className="text-base font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                  <HelpCircle className="w-5 h-5 text-indigo-600" /> Business Questions Answered
+                </h3>
                 <ul className="text-sm text-gray-700 space-y-1">
                   {insights.answerable_questions.map((question, idx) => (
                     <li key={idx}>• {question}</li>
@@ -179,7 +269,9 @@ const RelationshipModal = () => {
 
             {insights.is_relationship_helpful && (
               <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg p-4 border-2 border-orange-200">
-                <h3 className="text-base font-semibold text-gray-900 mb-2">⭐ Relationship Rating</h3>
+                <h3 className="text-base font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                  <Star className="w-5 h-5 text-orange-600" /> Relationship Rating
+                </h3>
                 <p className="text-lg font-bold text-orange-700 mb-2">{insights.is_relationship_helpful}</p>
                 {insights.helpfulness_reason && (
                   <p className="text-sm text-gray-700">{insights.helpfulness_reason}</p>
@@ -199,6 +291,30 @@ const RelationshipModal = () => {
           </div>
         </div>
       </div>
+
+      {/* Confidence Score Popup */}
+      {showConfidencePopup && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black bg-opacity-50"
+            onClick={() => setShowConfidencePopup(false)}
+          />
+          <div className="relative bg-white rounded-lg shadow-xl p-6 max-w-lg w-full">
+            <div className="flex items-start justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Confidence Score</h3>
+              <button
+                onClick={() => setShowConfidencePopup(false)}
+                className="p-1 hover:bg-gray-100 rounded transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            <div className="text-sm text-gray-700">
+              {definitions.confidenceScore}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
