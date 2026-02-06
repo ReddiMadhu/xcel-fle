@@ -46,15 +46,15 @@ const ResultsPage = () => {
         // Count edges by confidence
         const counts = countByConfidence(graphEdges);
 
-        // Set graph data in store
+        // Set graph data in store - All confidence levels visible by default
         useGraphStore.setState({
           nodes: graphNodes,
           edges: graphEdges,
-          filteredEdges: graphEdges.filter(e => e.data?.confidenceLevel === 'HIGH'),
+          filteredEdges: graphEdges, // Show all edges by default
           confidenceFilter: {
             HIGH: { visible: true, count: counts.HIGH || 0 },
-            MEDIUM: { visible: false, count: counts.MEDIUM || 0 },
-            LOW: { visible: false, count: counts.LOW || 0 }
+            MEDIUM: { visible: true, count: counts.MEDIUM || 0 },
+            LOW: { visible: true, count: counts.LOW || 0 }
           }
         });
 

@@ -5,13 +5,22 @@ import usePreviewStore from '../../stores/previewStore';
 const CompactDuplicateAlert = ({ group, fileId }) => {
   const { isColumnMarkedForDeletion, toggleColumnDeletion } = usePreviewStore();
 
+  // Determine colors based on detection type
+  const isSemantic = group.detection_type === 'semantic_overlap';
+  const bgColor = isSemantic ? 'bg-indigo-50' : 'bg-yellow-50';
+  const borderColor = isSemantic ? 'border-indigo-300' : 'border-yellow-300';
+  const iconColor = isSemantic ? 'text-indigo-600' : 'text-yellow-600';
+  const textColor = isSemantic ? 'text-indigo-900' : 'text-yellow-900';
+  const recommendationColor = isSemantic ? 'text-indigo-700' : 'text-yellow-700';
+
   return (
-    <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4">
+    <div className={`${bgColor} border ${borderColor} rounded-lg p-4`}>
       <div className="flex items-start gap-3">
-        <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+        <AlertTriangle className={`w-5 h-5 ${iconColor} flex-shrink-0 mt-0.5`} />
         <div className="flex-1">
-          <h4 className="text-sm font-semibold text-yellow-900 mb-2">
-            {group.detection_type.replace(/_/g, ' ')} - {group.similarity_score}% similar
+          <h4 className={`text-sm font-semibold ${textColor} mb-2`}>
+            {group.detection_type.replace(/_/g, ' ')} - {Math.round(group.similarity_score)}% similar
+            {isSemantic && <span className="ml-2 text-xs font-normal">(LLM Validated)</span>}
           </h4>
 
           {/* Columns in horizontal layout */}
@@ -44,8 +53,15 @@ const CompactDuplicateAlert = ({ group, fileId }) => {
           </div>
 
           {group.recommendation && (
-            <p className="text-xs text-yellow-700 mt-2">
+            <p className={`text-xs ${recommendationColor} mt-2`}>
               <strong>Recommendation:</strong> {group.recommendation}
+            </p>
+          )}
+
+          {/* Show LLM reasoning for semantic duplicates */}
+          {isSemantic && group.metadata?.llm_reasoning && (
+            <p className="text-xs text-indigo-600 mt-2 italic">
+              <strong>AI Analysis:</strong> {group.metadata.llm_reasoning}
             </p>
           )}
         </div>

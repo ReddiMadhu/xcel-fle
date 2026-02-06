@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useGraphStore } from '../../stores/graphStore.js';
+import { jobsApi } from '../../services/jobsApi.js';
 import Button from '../common/Button.jsx';
 import {
   CheckCircle2,
@@ -14,7 +16,8 @@ import {
   X,
   AlertTriangle,
   Check,
-  Circle
+  Circle,
+  Trash2
 } from 'lucide-react';
 import { extractOriginalFilename } from '../../utils/fileUtils.js';
 
@@ -45,11 +48,55 @@ const RelationshipModal = () => {
   const selectedRelationship = useGraphStore(state => state.selectedRelationship);
   const closeModal = useGraphStore(state => state.actions.closeRelationshipModal);
   const [showConfidencePopup, setShowConfidencePopup] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   if (!selectedRelationship) return null;
 
   const rel = selectedRelationship;
   const insights = rel.business_insights || {};
+
+  // Delete handler
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      // Extract job_id from URL or relationship data
+      const jobId = window.location.pathname.split('/')[2]; // Assumes URL like /jobs/{job_id}/results
+
+      // Call API to delete relationship
+      await jobsApi.deleteRelationship(jobId, rel.relationship_id);
+
+      // Update graph store to remove relationship from display
+      const { edges } = useGraphStore.getState();
+      const updatedEdges = edges.filter(
+        edge => edge.data?.relationship?.relationship_id !== rel.relationship_id
+      );
+
+      const confidenceFilter = useGraphStore.getState().confidenceFilter;
+      const filteredEdges = updatedEdges.filter(e => {
+        const level = e.data?.confidenceLevel;
+        return confidenceFilter[level]?.visible;
+      });
+
+      useGraphStore.setState({
+        edges: updatedEdges,
+        filteredEdges
+      });
+
+      // Close modal
+      closeModal();
+
+      // Show success notification (you can add toast here if available)
+      console.log('Relationship deleted successfully');
+
+    } catch (error) {
+      console.error('Failed to delete relationship:', error);
+      alert('Failed to delete relationship. Please try again.');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
+    }
+  };
 
   const getConfidenceBadgeColor = (level) => {
     switch (level) {
@@ -118,6 +165,16 @@ const RelationshipModal = () => {
               <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getConfidenceBadgeColor(rel.confidence_level)}`}>
                 {rel.confidence_level} Confidence
               </span>
+              {/* Delete button */}
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                title="Delete Relationship"
+                aria-label="Delete relationship"
+              >
+                <Trash2 className="w-5 h-5" />
+              </button>
+              {/* Close button */}
               <button
                 onClick={closeModal}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -332,6 +389,53 @@ const RelationshipModal = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && createPortal(
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[10001]">
+          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full mx-4 p-6">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="p-2 bg-red-100 rounded-lg">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                  Delete Relationship?
+                </h3>
+                <p className="text-sm text-gray-600">
+                  This will permanently remove the relationship between:
+                </p>
+                <div className="mt-2 p-2 bg-gray-50 rounded text-xs font-mono">
+                  {extractOriginalFilename(rel.source?.file)}.{rel.source?.column}
+                  <br />
+                  → {extractOriginalFilename(rel.target?.file)}.{rel.target?.column}
+                </div>
+                <p className="text-sm text-gray-600 mt-2">
+                  This action cannot be undone.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+                disabled={isDeleting}
+              >
+                {isDeleting ? 'Deleting...' : 'Delete Relationship'}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );

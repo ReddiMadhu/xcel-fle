@@ -6,11 +6,11 @@ export const useGraphStore = create((set) => ({
   edges: [],
   filteredEdges: [],
 
-  // Filter state
+  // Filter state - All levels visible by default
   confidenceFilter: {
     HIGH: { visible: true, count: 0 },
-    MEDIUM: { visible: false, count: 0 },
-    LOW: { visible: false, count: 0 }
+    MEDIUM: { visible: true, count: 0 },
+    LOW: { visible: true, count: 0 }
   },
 
   // Selected relationship for modal

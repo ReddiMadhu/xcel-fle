@@ -84,5 +84,11 @@ export const jobsApi = {
   cancelPreview: async (previewId) => {
     const response = await apiClient.delete(`/jobs/preview/${previewId}`);
     return response.data;
+  },
+
+  // DELETE /api/v1/jobs/{job_id}/relationships/{relationship_id} - Delete relationship
+  deleteRelationship: async (jobId, relationshipId) => {
+    const response = await apiClient.delete(`/jobs/${jobId}/relationships/${relationshipId}`);
+    return response.data; // { success, relationship_id, remaining_relationships, message }
   }
 };
