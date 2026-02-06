@@ -16,6 +16,9 @@ export const transformToReactFlow = (apiResult) => {
   const files = apiResult.result.files;
   const relationships = apiResult.result.relationships || [];
 
+  // Filter out deleted relationships
+  const activeRelationships = relationships.filter(r => !r.deleted);
+
   // Step 1: Create file nodes (parent containers)
   files.forEach((file, fileIndex) => {
     const fileNode = {
@@ -72,7 +75,7 @@ export const transformToReactFlow = (apiResult) => {
   });
 
   // Step 3: Create edges from relationships
-  relationships.forEach((rel, relIndex) => {
+  activeRelationships.forEach((rel, relIndex) => {
     // Find source and target file indices
     const sourceFileIndex = files.findIndex(f => f.file_name === rel.source?.file);
     const targetFileIndex = files.findIndex(f => f.file_name === rel.target?.file);
